@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Priority Invitation</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --gold: #c5a059; --dark: #050505; }
+        
+        body { 
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background: var(--dark); color: white;
+            font-family: 'Times New Roman', serif; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 40px 20px; border-radius: 40px; text-align: center;
+            width: 85%; max-width: 400px; z-index: 10;
+        }
+
+        .end-pulse { box-shadow: 0 0 50px rgba(197, 160, 89, 0.6); border: 2px solid var(--gold); transform: scale(1.05); transition: 0.2s; }
+
+        h1 { font-size: 1.4rem; font-weight: 200; letter-spacing: 3px; margin-bottom: 20px; text-transform: uppercase; }
+        #joke-text { color: var(--gold); font-style: italic; min-height: 40px; font-size: 1rem; margin-bottom: 10px; }
+
+        .btn-wrapper { 
+            position: relative; height: 280px; width: 100%; 
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        button { border: none; border-radius: 100px; font-weight: bold; letter-spacing: 2px; cursor: pointer; }
+
+        #yesBtn { 
+            background: linear-gradient(45deg, var(--gold), #f9e29b); 
+            color: black; padding: 20px 60px; font-size: 1.1rem; 
+            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.3); z-index: 100; 
+        }
+
+        #noBtn { 
+            background: #ffffff; color: #000; padding: 12px 30px; font-size: 0.9rem; 
+            position: absolute; z-index: 150; white-space: nowrap; 
+            transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            left: 50%; top: 75%; transform: translate(-50%, -50%);
+        }
+
+        #slot-container { display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .big-announcement { font-size: 1.8rem; font-weight: bold; margin: 15px 0; color: #ffffff; }
+        .slot-box { 
+            font-size: 2.5rem; color: var(--gold); height: 80px; overflow: hidden; 
+            border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold); 
+            margin: 20px 0; padding: 10px 20px; width: 100%; display: flex; 
+            align-items: center; justify-content: center; background: rgba(255,255,255,0.05); 
+        }
+        #final-msg { opacity: 0; font-size: 1.1rem; color: var(--gold); font-weight: bold; letter-spacing: 2px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="mainCard">
+        <div style="color:var(--gold); font-size: 0.7rem; letter-spacing: 5px; margin-bottom: 15px;">PRIVATE ACCESS</div>
+        <h1 id="text">Will you be <span style="color:var(--gold)">Tanmay's</span> Valentine Michelle?</h1>
+        <div id="joke-text">Choose wisely...</div>
+        <div class="btn-wrapper">
+            <button id="yesBtn">ACCEPT</button>
+            <button id="noBtn">DECLINE</button>
+        </div>
+    </div>
+
+    <div id="slot-container" class="card">
+        <p style="color: var(--gold); font-size: 0.9rem; margin-bottom: 5px;">I knew you would click yes! 😉</p>
+        <p class="big-announcement" id="main-title">You are now Tanmay's...</p>
+        <div class="slot-box">
+            <div id="slot-text">Spinning...</div>
+        </div>
+        <div id="final-msg">🔒 FOREVER LOCKED</div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const jokeDisplay = document.getElementById('joke-text');
+        const slotText = document.getElementById('slot-text');
+        const mainTitle = document.getElementById('main-title');
+        const slotCard = document.getElementById('slot-container');
+
+        const nicknames = ["Baby", "Sweetheart", "Kuchupuchu", "Baccha", "Shona", "My gurl", "Cutipie", "Babe", "Darling", "Jaaneman", "Sweetie", "Wifey", "Rasmalai", "My Malkin"];
+        const jokes = ["Nice try!", "Too slow!", "Not happening.", "Try again!", "you cant do that to me.", "Button is shy!", "Look at it go!", "Catch me if you can!"];
+        let jokeIndex = 0;
+        let rotationValue = 0;
+
+        const moveNo = () => {
+            const range = 140; 
+            const randomX = (Math.random() - 0.5) * 2 * range;
+            const randomY = (Math.random() - 0.5) * 2 * range;
+            
+            // Increase rotation speed with each attempt
+            rotationValue += 45 + (jokeIndex * 10); 
+
+            noBtn.style.transform = `translate(calc(-50% + ${randomX}px), calc(-50% + ${randomY}px)) rotate(${rotationValue}deg)`;
+            
+            jokeDisplay.innerText = jokes[jokeIndex % jokes.length];
+            jokeIndex++;
+        };
+
+        noBtn.addEventListener('mouseover', moveNo);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveNo(); });
+
+        yesBtn.addEventListener('click', () => {
+            document.getElementById('mainCard').style.display = 'none';
+            slotCard.style.display = 'flex';
+            startFastStop();
+        });
+
+        function startFastStop() {
+            let index = 0;
+            const startTime = Date.now();
+            const minSpinTime = 1200; 
+
+            function spin() {
+                const elapsed = Date.now() - startTime;
+                const currentName = nicknames[index % nicknames.length];
+                slotText.innerText = currentName;
+                index++;
+
+                if (elapsed >= minSpinTime && currentName === "My Malkin") {
+                    slotText.style.color = "#f9e29b";
+                    slotText.style.transform = "scale(1.4)";
+                    mainTitle.innerText = "OFFICIALLY TANMAYS'S";
+                    mainTitle.style.color = "var(--gold)";
+                    slotCard.classList.add('end-pulse');
+                    document.getElementById('final-msg').style.opacity = "1";
+
+                    confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 }, colors: ['#c5a059', '#ffffff', '#ff0000'] });
+                    return; 
+                }
+                setTimeout(spin, 50);
+            }
+            spin();
+        }
+    </script>
+</body>
+</html>
